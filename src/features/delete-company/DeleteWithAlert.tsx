@@ -6,6 +6,7 @@ import { Modal } from '../../shared/ui/modal/Modal'
 import { useState } from 'react'
 import { ButtonGroup } from "shared/ui/button-group/ButtonGroup"
 import styles from "./deleteWithAlert.module.css"
+import { AnyAction } from "@reduxjs/toolkit"
 
 export function DeleteWithAlert({ company }: { company: Company }) {
 
@@ -17,7 +18,7 @@ export function DeleteWithAlert({ company }: { company: Company }) {
         const action = mybuhApi.util.updateQueryData('getCompanies', undefined, (draft) =>
             draft.filter(c => c.id !== company.id)
         )
-        const patchCollection = dispatch(action) //TODO WTF?!
+        const patchCollection = dispatch(action as unknown as AnyAction) //TODO WTF?!
 
         console.log(patchCollection.patches[0].value)
         setModalVisible(false)
