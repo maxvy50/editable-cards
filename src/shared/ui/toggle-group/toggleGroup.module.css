@@ -1,0 +1,51 @@
+.container {
+    width: 100%;
+    display: flex;
+}
+
+
+.horizontal {
+    flex-direction: row;
+    gap: 8px;
+}
+.horizontal label {
+    text-align: center;
+    padding-top: 10px;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 22px;
+    flex-grow: 1;
+    height: 46px;
+    background: #F2F2F2;
+    border-radius: 5px;
+}
+.horizontal label:hover {
+    border: 1px solid #005DA1;
+}
+.horizontal label:has(input[type="radio"]:checked) {
+    background-color: #005DA1;
+    color: #fff;
+}
+.horizontal input[type="radio"] {
+    display: none;
+}
+
+
+.vertical {
+    flex-direction: column;
+    gap: 8px;
+}
+
+.vertical label {
+    font-size: 16px;
+    line-height: 22px;
+    color: #808080;
+}
+.vertical label:has(input[type="radio"]:checked),
+.vertical label:hover {
+    color: #005DA1;
+}
+
+.vertical input[type="radio"] {
+    margin-right: 12px;
+}

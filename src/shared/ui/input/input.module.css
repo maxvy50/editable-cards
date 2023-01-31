@@ -1,0 +1,49 @@
+.container {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.label {
+    width: 100%;
+    font-size: 12px;
+    line-height: 16px;
+    color: #808080;
+}
+
+.input {
+    padding: 0px 12px;
+    flex-grow: 1;
+
+    height: 39px;
+    font-size: 14px;
+    line-height: 19px;
+
+    border: 1px solid #D1D1D1;
+    border-radius: 5px;
+    caret-color: #333;
+}
+
+.input:focus {
+    outline: 1px solid #208AD9;
+}
+
+.shortened {
+    border-radius: 0 5px 5px 0;
+    align-self: stretch;
+}
+
+.prefix {
+
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    padding: 0px 12px;
+    height: 39px;
+    font-size: 14px;
+    line-height: 19px;
+
+    border: 1px solid #D1D1D1;
+    border-radius: 5px 0 0 5px;
+    border-right: none;
+}

@@ -1,0 +1,54 @@
+.button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+    padding: 10px 40px;
+    font-size: 14px;
+    line-height: 19px;
+    border: none;
+    background: #F2F2F2;
+}
+
+.button:hover,
+.button:focus {
+    filter: drop-shadow(1px 1px 0 rgba(0, 0, 0, 0.3));
+    outline: none;
+
+}
+
+.button:disabled {
+    opacity: 0.5;
+}
+
+
+.default {
+    background-color: #2991DC;
+    color: #fff;
+    border: none;
+}
+
+.outlined {
+    background-color: #fff;
+    border: 1px solid #2991DC;
+    color: #2991DC;
+}
+
+.icon {
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    background: none;
+}
+
+.accept {
+    background-color: #009A3E;
+    color: #fff;
+}
+
+.toggled {
+    font-size: 16px;
+    line-height: 22px;
+    background-color: #005DA1;
+    color: #fff;
+}
