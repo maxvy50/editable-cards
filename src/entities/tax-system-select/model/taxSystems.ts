@@ -7,6 +7,7 @@ export function useTaxSystems() {
 
     const { data = [] } = useGetTaxSystemsQuery()
     const formsToTaxes = useGetFormToSystemQuery()
+
     const getTaxSystemById = (id: Ownership["id"]) => {
         const temp = data.find(form => form.id === id)
         //console.log(`tax_id=${id}: `, temp)
@@ -24,6 +25,8 @@ export function useTaxSystems() {
     }
 
     return useMemo(() => ({
+        personalTax: data.find(s => s.code === 'fiz'),
+        ptyTax: data.find(s => s.code === 'chp'),
         getTaxSystemById,
         getTaxSystemsFor
     }), [data, formsToTaxes.data])

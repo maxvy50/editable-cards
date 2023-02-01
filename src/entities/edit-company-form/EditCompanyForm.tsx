@@ -1,5 +1,5 @@
 import { Company, Ownership, TaxSystem } from 'shared/types/types'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, ChangeEvent } from 'react'
 import { Button } from 'shared/ui/button/Button'
 import { Input } from 'shared/ui/input/Input'
 import { ToggleGroup, ToggleGroupOption } from 'shared/ui/toggle-group/ToggleGroup'
@@ -32,20 +32,28 @@ const radios: Radio[] = [
 export function EditCompanyForm({ company, onSubmit }: EditCompanyFormProps) {
 
     const { getFormById, too, individual, personal } = useOwnershipForms()
-
+    const { getTaxSystemById, personalTax, ptyTax } = useTaxSystems()
     const ownershipForm = getFormById(company.form_id)
-    const taxSystem = useTaxSystems().getTaxSystemById(company.tax_id)
+    const taxSystem = getTaxSystemById(company.tax_id)
 
 
     const [currentTab, setCurrentTab] = useState<Tab | null>(null)
     const [currentRadio, setCurrentRadio] = useState<Radio | null>(null)
     const [selectedForm, setSelectedForm] = useState<Ownership | null>(null)
     const [selectedTax, setSelectedTax] = useState<TaxSystem | null>(null)
-    const tinRef = useRef<HTMLInputElement>(null)
-    const nameRef = useRef<HTMLInputElement>(null)
+    const [nameState, setNameState] = useState<string>(company.company_name)
+    const [tinState, setTinState] = useState<string>(company.company_tin)
 
-    function handleSubmit() { }
 
+    function handleSubmit() { 
+        onSubmit({
+            ...company,
+            form_id: selectedForm?.id ?? company.form_id,
+            tax_id: selectedTax?.id ?? company.tax_id,
+            company_tin: tinState,
+            company_name: nameState,
+        })
+    }
 
 
     useEffect(() => {
@@ -57,13 +65,17 @@ export function EditCompanyForm({ company, onSubmit }: EditCompanyFormProps) {
             )
     }, [currentTab])
     useEffect(() => {
-        if (currentRadio === radios[2]) setSelectedForm(personal ?? null)
+        if (currentRadio === radios[2]) {
+            setSelectedForm(personal ?? null)
+            setSelectedTax(personalTax ?? null)
+        }
+        if (currentRadio === radios[1]) 
+            setSelectedTax(ptyTax ?? null)
         if (currentRadio !== radios[2])
             setSelectedForm(
                 getFormById(company.form_id)
             )
     }, [currentRadio])
-    useEffect(() => { }, [currentRadio])
     useEffect(() => {
         setSelectedForm(ownershipForm)
         setCurrentTab(() => {
@@ -73,6 +85,7 @@ export function EditCompanyForm({ company, onSubmit }: EditCompanyFormProps) {
         })
     }, [ownershipForm])
     useEffect(() => { setSelectedTax(taxSystem) }, [taxSystem])
+
 
     return (
         <div className={styles.container}>
@@ -116,10 +129,9 @@ export function EditCompanyForm({ company, onSubmit }: EditCompanyFormProps) {
                 }
 
                 <Input type={"text"}
-                    ref={tinRef}
                     label={"Введите ИИН/БИН:"}
-                    value={company.company_tin}
-                    onChange={() => { }}
+                    value={tinState}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setTinState(e.target.value)}
                     disabled={
                         currentTab?.value === "too"
                         || currentTab?.value === "ip"
@@ -127,11 +139,10 @@ export function EditCompanyForm({ company, onSubmit }: EditCompanyFormProps) {
                 />
 
                 <Input type={"text"}
-                    ref={nameRef}
                     prefix={selectedForm?.short}
                     label={"Введите название компании:"}
-                    value={company.company_name}
-                    onChange={() => { }}
+                    value={nameState}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => {setNameState(e.target.value)}}
                     disabled={
                         currentTab?.value === "too"
                         || currentTab?.value === "ip"
