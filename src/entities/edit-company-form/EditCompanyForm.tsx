@@ -107,7 +107,7 @@ export function EditCompanyForm({ company, onSubmit }: EditCompanyFormProps) {
                     />
                 }
 
-                {currentRadio !== radios[2] &&
+                {currentRadio === radios[0] &&
                     <TaxSystemSelect
                         value={selectedTax}
                         onChange={o => setSelectedTax(o)}
