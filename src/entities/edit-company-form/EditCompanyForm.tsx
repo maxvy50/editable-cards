@@ -1,12 +1,13 @@
 import { Company, Ownership, TaxSystem } from 'shared/types/types';
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Button } from 'shared/ui/button/Button'
 import { Input } from 'shared/ui/input/Input'
-import { Select } from 'shared/ui/select/Select'
 import { ToggleGroup, ToggleGroupOption } from 'shared/ui/toggle-group/ToggleGroup'
-import { useOwnershipForms } from './model/ownerships'
+import { useOwnershipForms } from '../ownership-form-select/model/ownerships'
 import styles from "./editCompanyForm.module.css"
-import { useGetTaxSystemsQuery, useGetFormToSystemQuery } from 'shared/api/mockApi';
+import { useTaxSystems } from '../tax-system-select/model/taxSystems'
+import { OwnershipSelect } from 'entities/ownership-form-select/ui/OwnershipSelect';
+import { TaxSystemSelect } from 'entities/tax-system-select/ui/TaxSystemSelect';
 
 
 interface EditCompanyFormProps {
@@ -14,88 +15,64 @@ interface EditCompanyFormProps {
     onSubmit: (company: Company) => void
 }
 
-type Filter = "too" | "ip" | "fiz" | "chp" | "else_jur"
-type FormSelectOption = {label: string, value: Ownership}
-type TaxSelectOption = {label: string, value: TaxSystem}
+type Tab = { label: string, value: "too" | "ip" | "else" }
+type Radio = { label: string, value: "fiz" | "chp" | "else_jur" }
+const tabs: Tab[] = [
+    { label: "ТОО", value: "too" },
+    { label: "ИП", value: "ip" },
+    { label: "Прочие", value: "else" }
+]
+const radios: Radio[] = [
+    { label: "Юридические лица", value: "else_jur" },
+    { label: "Частная практика", value: "chp" },
+    { label: "Физические лица", value: "fiz" }
+]
 
 
 export function EditCompanyForm({ company, onSubmit }: EditCompanyFormProps) {
 
-    const tabs: ToggleGroupOption[] = [
-        { label: "ТОО", value: "too" },
-        { label: "ИП", value: "ip" },
-        { label: "Прочие", value: "else_jur" }
-    ]
-    const radios: ToggleGroupOption[] = [
-        { label: "Юридические лица", value: "else_jur" },
-        { label: "Частная практика", value: "chp" },
-        { label: "Физические лица", value: "fiz" }
-    ]
+    const { getFormById, too, individual, personal } = useOwnershipForms()
 
-    const forms = useOwnershipForms()
-    const taxes = useGetTaxSystemsQuery()
-    const formsToTaxes = useGetFormToSystemQuery()
+    const ownershipForm = getFormById(company.form_id)
+    const taxSystem = useTaxSystems().getTaxSystemById(company.tax_id)
 
-    const [draft, setDraft] = useState<Company>({ ...company })
 
-    const [filter, setFilter] = useState<Filter>(() => {
-        if (company.form_id === 1) return "too"
-        if (company.form_id === 14) return "ip"
-        if (company.form_id === 20) return "fiz"
-        if (forms.chpIds.indexOf(company.form_id) !== -1) return "chp"
-        return "else_jur"
-    })
+    const [currentTab, setCurrentTab] = useState<Tab | null>(null)
+    const [currentRadio, setCurrentRadio] = useState<Radio | null>(null)
+    const [selectedForm, setSelectedForm] = useState<Ownership | null>(null)
+    const [selectedTax, setSelectedTax] = useState<TaxSystem | null>(null)
+    const tinRef = useRef<HTMLInputElement>(null)
+    const nameRef = useRef<HTMLInputElement>(null)
 
-    const filteredForms = (filter: Filter) => {
-        if (["too", "ip", "fiz"].indexOf(filter) !== -1)
-            return []
-        if (filter === "chp")
-            return forms.data.filter(form => form.parent_id === 15)
-        if (filter === "else_jur")
-            return forms.data.filter(form => form.parent_id === 2)
-        return []
-    }
+    function handleSubmit() { }
 
-    const filteredTaxes = (filter: Filter) => {
-        if (["chp", "fiz"].indexOf(filter) !== -1)
-            return []
-        if (["too", "else_jur", "ip"].indexOf(filter) !== -1) {
-            let formId = filter === "ip" ? 14 : 1
-            let fttIds = formsToTaxes.data?.
-                filter(ftt => ftt.form_ownership_id === formId).
-                map(ftt => ftt.tax_system_id)
-            return taxes.data?.filter(tax => fttIds?.indexOf(tax.id) !== -1) ?? []
-        }
-        return []
-    }
 
-    const formSelectOptions: FormSelectOption[] = filteredForms(filter).
-        map(form => ({ label: form.full, value: form }))
-    const preselectedForm = formSelectOptions.find(option => option.value.id === company.form_id) ?? null
-    const [formSelectState, setFormSelectState] = useState<null | FormSelectOption>(preselectedForm)
 
-    const taxSelectOptions: TaxSelectOption[] = filteredTaxes(filter).
-        map(tax => ({ label: tax.full, value: tax }))
-    const preselectedTax = taxSelectOptions.find(tax => tax.value.id === company.tax_id) ?? null
-    const [taxSelectState, setTaxSelectState] = useState<TaxSelectOption | null>(preselectedTax)
-
-    const handleSubmit = () => {
-        onSubmit({
-            ...company,
-            form_id: formSelectState?.value.id ?? company.form_id,
-            tax_id: taxSelectState?.value.id ?? company.tax_id,
-        })
-    }
-
-    useEffect(() => console.log(company), [])
     useEffect(() => {
-        if (filter === "too")
-            setDraft({ ...draft, form_id: 1 })
-        if (filter === "ip")
-            setDraft({ ...draft, form_id: 14 })
-        if (filter === "fiz")
-            setDraft({ ...draft, form_id: 20 })
-    }, [filter])
+        if (currentTab === tabs[0]) setSelectedForm(too ?? null)
+        if (currentTab === tabs[1]) setSelectedForm(individual ?? null)
+        if (currentTab === tabs[2])
+            setSelectedForm(
+                getFormById(company.form_id)
+            )
+    }, [currentTab])
+    useEffect(() => {
+        if (currentRadio === radios[2]) setSelectedForm(personal ?? null)
+        if (currentRadio !== radios[2])
+            setSelectedForm(
+                getFormById(company.form_id)
+            )
+    }, [currentRadio])
+    useEffect(() => { }, [currentRadio])
+    useEffect(() => {
+        setSelectedForm(ownershipForm)
+        setCurrentTab(() => {
+            if (ownershipForm?.code === 'too') return tabs[0]
+            if (ownershipForm?.code === "ip") return tabs[1]
+            return tabs[2]
+        })
+    }, [ownershipForm])
+    useEffect(() => { setSelectedTax(taxSystem) }, [taxSystem])
 
     return (
         <div className={styles.container}>
@@ -103,64 +80,66 @@ export function EditCompanyForm({ company, onSubmit }: EditCompanyFormProps) {
 
             <div className={styles.form}>
 
-                <ToggleGroup name={"form"}
-                    options={tabs}
-                    value={{ label: filter, value: filter }}
-                    appearance={"horizontal"}
-                    onChange={o => setFilter(o.value)}
-                />
+                {currentTab &&
+                    <ToggleGroup name={"tab"}
+                        options={tabs}
+                        value={currentTab as ToggleGroupOption}
+                        appearance={"horizontal"}
+                        onChange={o => setCurrentTab(o)}
+                    />
+                }
 
-                {["fiz", "else_jur", "chp"].indexOf(filter) !== -1 &&
-                    <ToggleGroup name={"sub_form"}
+                {currentTab === tabs[2] &&
+                    <ToggleGroup name={"radio"}
                         options={radios}
-                        value={{ label: filter, value: filter }}
+                        value={currentRadio ?? radios[0]}
                         appearance={"vertical"}
-                        onChange={o => setFilter(o.value)}
+                        onChange={o => setCurrentRadio(o)}
                     />
                 }
 
-                {filteredForms(filter).length !== 0 &&
-                    <Select
-                        value={
-                            formSelectState
-                        }
-                        onChange={o => setFormSelectState(o)}
-                        label={"Выберите форму собственности:"}
-                        options={
-                            formSelectOptions
-                        }
+                {currentTab === tabs[2]
+                    && currentRadio !== radios[2] &&
+                    <OwnershipSelect
+                        value={selectedForm}
+                        onChange={o => setSelectedForm(o)}
+                        isForJuridical={currentRadio === radios[0]}
                     />
                 }
 
-                {filteredTaxes(filter).length !== 0 &&
-                    <Select
-                        value={
-                            taxSelectState
-                        }
-                        onChange={o => setTaxSelectState(o)}
-                        label={"Выберите систему налогообложения:"}
-                        options={
-                           taxSelectOptions
-                        }
+                {currentRadio !== radios[2] &&
+                    <TaxSystemSelect
+                        value={selectedTax}
+                        onChange={o => setSelectedTax(o)}
+                        ownershipForm={selectedForm}
                     />
                 }
 
                 <Input type={"text"}
+                    ref={tinRef}
                     label={"Введите ИИН/БИН:"}
                     value={company.company_tin}
                     onChange={() => { }}
-                    disabled={true}
+                    disabled={
+                        currentTab?.value === "too"
+                        || currentTab?.value === "ip"
+                    }
                 />
 
                 <Input type={"text"}
-                    prefix={formSelectState?.value.short}
+                    ref={nameRef}
+                    prefix={selectedForm?.short}
                     label={"Введите название компании:"}
                     value={company.company_name}
                     onChange={() => { }}
-                    disabled={true}
+                    disabled={
+                        currentTab?.value === "too"
+                        || currentTab?.value === "ip"
+                    }
                 />
 
-                <Button style={{ width: "170px" }} appearance={"accept"}
+                <Button style={{ width: "170px" }}
+                    appearance={"accept"}
                     onClick={handleSubmit}>
                     {`Сохранить`}
                 </Button>

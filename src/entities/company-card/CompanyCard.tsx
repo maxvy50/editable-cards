@@ -1,7 +1,7 @@
 import { Company } from "shared/types/types"
 import styles from "./companyCard.module.css"
 import { PropsWithChildren } from "react"
-import { useOwnershipForms } from '../edit-company-form/model/ownerships';
+import { useOwnershipForms } from '../ownership-form-select/model/ownerships';
 
 
 
