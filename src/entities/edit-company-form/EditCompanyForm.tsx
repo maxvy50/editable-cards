@@ -1,4 +1,4 @@
-import { Company, Ownership, TaxSystem } from 'shared/types/types';
+import { Company, Ownership, TaxSystem } from 'shared/types/types'
 import { useState, useEffect, useRef } from 'react'
 import { Button } from 'shared/ui/button/Button'
 import { Input } from 'shared/ui/input/Input'
@@ -6,8 +6,8 @@ import { ToggleGroup, ToggleGroupOption } from 'shared/ui/toggle-group/ToggleGro
 import { useOwnershipForms } from '../ownership-form-select/model/ownerships'
 import styles from "./editCompanyForm.module.css"
 import { useTaxSystems } from '../tax-system-select/model/taxSystems'
-import { OwnershipSelect } from 'entities/ownership-form-select/ui/OwnershipSelect';
-import { TaxSystemSelect } from 'entities/tax-system-select/ui/TaxSystemSelect';
+import { OwnershipSelect } from 'entities/ownership-form-select/ui/OwnershipSelect'
+import { TaxSystemSelect } from 'entities/tax-system-select/ui/TaxSystemSelect'
 
 
 interface EditCompanyFormProps {
