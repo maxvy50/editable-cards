@@ -3,7 +3,7 @@ import { Company, FormToSystem, Ownership, TaxSystem } from '../types/types';
 
 export const mybuhApi = createApi({
   reducerPath: 'mybuhApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'https://mybuh-server.cyclic.app/' }),
+  baseQuery: fetchBaseQuery({ baseUrl: 'https://cards-server.cyclic.app/' }),
   endpoints: (builder) => ({
     getCompanies: builder.query<Company[], void>({
       query: () => `companies`,
